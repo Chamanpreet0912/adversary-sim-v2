@@ -1,0 +1,36 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign in · Adversary Emulation Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0f1c;--p:#111a2e;--ln:#243558;--tx:#e8eefc;--mu:#8a9bbd;--ok:#3ee0b0;--bad:#ff5d6c;--blu:#6aa7ff}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;color:var(--tx);font:14px/1.5 "IBM Plex Sans",system-ui,sans-serif;background:radial-gradient(900px 500px at 85% -10%,#1b2f6b66,transparent),radial-gradient(700px 400px at -5% 110%,#5b2a7a50,transparent),var(--bg)}
+.box{width:min(400px,92vw);background:linear-gradient(180deg,#16213a,var(--p));border:1px solid var(--ln);border-radius:16px;padding:28px}
+.logo{width:44px;height:44px;border:2px solid var(--blu);border-radius:12px;display:grid;place-items:center;margin-bottom:14px}
+h1{font-size:19px;margin:0 0 4px}p{color:var(--mu);margin:0 0 18px;font-size:13px}
+.tabs{display:flex;gap:6px;margin-bottom:16px}.tabs button{flex:1;padding:9px;background:none;border:1px solid var(--ln);color:var(--mu);border-radius:8px;font:600 13px inherit;cursor:pointer}
+.tabs button.on{color:var(--tx);border-color:var(--blu);background:#6aa7ff14}
+label{display:block;color:var(--mu);font-size:12px;margin:12px 0 4px}
+input{width:100%;background:#0b1326;color:var(--tx);border:1px solid var(--ln);border-radius:8px;padding:10px;font:inherit}
+input:focus-visible,button:focus-visible{outline:2px solid var(--blu);outline-offset:2px}
+#go{width:100%;margin-top:18px;padding:12px;border:0;border-radius:10px;font:700 15px inherit;color:#06101f;background:linear-gradient(90deg,#6aa7ff,#9d8cff);cursor:pointer}
+#go:disabled{opacity:.6}#msg{min-height:20px;margin-top:12px;font-size:13px;color:var(--bad)}#msg.ok{color:var(--ok)}
+.hint{margin-top:14px;font-size:12px;color:var(--mu)}
+</style></head><body><div class="box">
+<div class="logo"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6aa7ff" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/></svg></div>
+<h1>Adversary Emulation Platform</h1><p>Sign in to run lab-scoped attack simulations.</p>
+<div class="tabs"><button id="t1" class="on">Sign in</button><button id="t2">Register</button></div>
+<label for="u">Username</label><input id="u" autocomplete="username">
+<label for="p">Password</label><input id="p" type="password" autocomplete="current-password">
+<button id="go">Sign in</button><div id="msg" role="alert"></div>
+<div class="hint" id="hint">New accounts get the <b>viewer</b> role. An admin can upgrade you to analyst.</div></div>
+<script>
+const $=id=>document.getElementById(id);let reg=false;
+if(localStorage.token)location="/";
+function mode(r){reg=r;$("t1").className=r?"":"on";$("t2").className=r?"on":"";$("go").textContent=r?"Create account":"Sign in";$("hint").style.display=r?"block":"none";$("msg").textContent=""}
+$("t1").onclick=()=>mode(false);$("t2").onclick=()=>mode(true);mode(false);$("hint").style.display="none";
+async function post(u,b){const r=await fetch(u,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.detail||"Something went wrong");return d}
+async function submit(){const b={username:$("u").value,password:$("p").value},m=$("msg");m.className="";m.textContent="";$("go").disabled=true;
+try{if(reg){await post("/api/auth/register",b)}const d=await post("/api/auth/login",b);localStorage.token=d.token;location="/"}
+catch(e){m.textContent=e.message}$("go").disabled=false}
+$("go").onclick=submit;[$("u"),$("p")].forEach(i=>i.onkeydown=e=>{if(e.key=="Enter")submit()});
+</script></body></html>

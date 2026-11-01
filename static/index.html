@@ -1,0 +1,100 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Adversary Emulation Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0f1c;--p:#111a2e;--p2:#16213a;--ln:#243558;--tx:#e8eefc;--mu:#8a9bbd;--ok:#3ee0b0;--bad:#ff5d6c;--amb:#ffb454;--blu:#6aa7ff}
+*{box-sizing:border-box}
+body{margin:0;color:var(--tx);font:14px/1.5 "IBM Plex Sans",system-ui,sans-serif;background:radial-gradient(900px 500px at 85% -10%,#1b2f6b55,transparent),radial-gradient(700px 400px at -5% 110%,#5b2a7a40,transparent),var(--bg);min-height:100vh}
+.mono{font-family:"IBM Plex Mono",monospace}
+header{display:flex;align-items:center;gap:16px;padding:16px 28px;border-bottom:1px solid var(--ln);flex-wrap:wrap;background:#0a0f1ccc;backdrop-filter:blur(8px);position:sticky;top:0;z-index:5}
+.logo{width:38px;height:38px;border:2px solid var(--blu);border-radius:10px;display:grid;place-items:center}
+h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.2px}header small{color:var(--mu);display:block;font-size:12px}
+.pill{margin-left:auto;display:flex;align-items:center;gap:8px;border:1px solid var(--ln);padding:6px 12px;border-radius:99px;font-size:12px;color:var(--mu)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 #3ee0b088;animation:pulse 2s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 9px transparent}100%{box-shadow:0 0 0 0 transparent}}
+main{display:grid;grid-template-columns:330px 1fr;gap:20px;padding:22px 28px;max-width:1500px;margin:auto}
+@media(max-width:960px){main{grid-template-columns:1fr;padding:16px}}
+.card{background:linear-gradient(180deg,var(--p2),var(--p));border:1px solid var(--ln);border-radius:14px;padding:18px;margin-bottom:18px}
+.card h2{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mu);margin:0 0 12px;font-weight:600}
+.adv{display:block;border:1px solid var(--ln);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:.15s}
+.adv:hover{border-color:var(--blu)}.adv input{display:none}.adv b{display:block}.adv span{color:var(--mu);font-size:12px}
+.adv:has(input:checked){border-color:var(--blu);background:#6aa7ff14;box-shadow:inset 3px 0 0 var(--blu)}
+label.f{display:block;color:var(--mu);font-size:12px;margin:10px 0 4px}
+select,input[type=password]{width:100%;background:#0b1326;color:var(--tx);border:1px solid var(--ln);border-radius:8px;padding:9px 10px;font:inherit}
+select:focus,input:focus-visible,button:focus-visible{outline:2px solid var(--blu);outline-offset:2px}
+#go{width:100%;margin-top:14px;padding:12px;border:0;border-radius:10px;font:600 15px "IBM Plex Sans";color:#06101f;background:linear-gradient(90deg,#6aa7ff,#9d8cff);cursor:pointer;transition:.15s}
+#go:hover{filter:brightness(1.1);transform:translateY(-1px)}#go:disabled{opacity:.6;cursor:wait}
+.note{color:var(--mu);font-size:12px;margin:10px 0 0}
+.rule{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--ln)}
+.rule:first-of-type{border-top:0}.rule small{display:block;color:var(--mu);font-family:"IBM Plex Mono",monospace;font-size:11px}
+.sw{position:relative;flex:none;width:40px;height:22px}.sw input{opacity:0;position:absolute;inset:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:2}
+.sw i{position:absolute;inset:0;background:#2a3a5f;border-radius:99px;transition:.2s}.sw i:after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s}
+.sw input:checked+i{background:var(--ok)}.sw input:checked+i:after{transform:translateX(18px)}.sw input:focus-visible+i{outline:2px solid var(--blu)}
+.hero{display:grid;grid-template-columns:190px 1fr;gap:22px;align-items:center}@media(max-width:620px){.hero{grid-template-columns:1fr;justify-items:center}}
+.gauge{position:relative;width:180px;height:180px}.gauge svg{transform:rotate(-90deg)}
+.gauge .v{position:absolute;inset:0;display:grid;place-content:center;text-align:center}.gauge .v b{font-size:42px;line-height:1}.gauge .v span{font-size:11px;color:var(--mu);letter-spacing:1px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;width:100%}
+.tile{background:#0b1326;border:1px solid var(--ln);border-radius:10px;padding:12px}.tile b{font-size:26px;display:block;line-height:1.1}.tile span{color:var(--mu);font-size:12px}
+.title{margin:0 0 4px;font-size:18px}.sub{color:var(--mu);margin:0 0 14px}
+.delta{display:inline-block;margin-left:8px;font-size:12px;padding:2px 8px;border-radius:99px}.delta.up{background:#3ee0b01f;color:var(--ok)}.delta.dn{background:#ff5d6c1f;color:var(--bad)}
+.mx{display:grid;grid-template-columns:repeat(10,minmax(112px,1fr));gap:8px;overflow-x:auto;padding-bottom:6px}
+.col h3{font-size:11px;color:var(--mu);margin:0 0 8px;font-weight:600;white-space:nowrap}
+.cell{border:1px solid var(--ln);border-radius:8px;padding:8px;margin-bottom:8px;font-size:12px;background:#0b1326;min-height:62px;transition:.3s}
+.cell b{display:block;font-family:"IBM Plex Mono",monospace;font-size:12px;margin-bottom:2px}
+.cell.ok{background:#3ee0b014;border-color:var(--ok)}.cell.ok b{color:var(--ok)}
+.cell.bad{background:#ff5d6c14;border-color:var(--bad);animation:shake .4s}.cell.bad b{color:var(--bad)}
+.cell.na{opacity:.35}@keyframes shake{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.tl{position:relative;margin-left:8px;border-left:2px solid var(--ln);padding-left:18px}
+.st{position:relative;padding:8px 0 14px;opacity:0;animation:in .4s forwards}@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.st:before{content:"";position:absolute;left:-26px;top:12px;width:14px;height:14px;border-radius:50%;background:var(--c);box-shadow:0 0 0 4px var(--bg)}
+.st.ok{--c:var(--ok)}.st.bad{--c:var(--bad)}.st b.r{color:var(--c);font-size:12px;letter-spacing:.8px;margin-left:8px}
+.st .n{color:var(--mu);font-size:13px}.st .tc{color:var(--mu);font-size:11px;font-family:"IBM Plex Mono",monospace}
+.btn{display:inline-block;border:1px solid var(--blu);color:var(--blu);padding:6px 12px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600}.btn:hover{background:#6aa7ff1a}
+.empty{color:var(--mu);text-align:center;padding:28px 0}
+.h{display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid var(--ln);font-size:13px}.h:first-child{border:0}.h a{color:var(--tx);text-decoration:none}.h a:hover{color:var(--blu)}
+</style></head><body>
+<header><div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6aa7ff" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/></svg></div>
+<div><h1>Adversary Emulation &amp; Attack Simulation Platform</h1><small>MITRE ATT&amp;CK mapped · find the attacks your defenses miss</small></div>
+<div class="pill"><span class="dot"></span>LAB MODE · SIMULATION ONLY</div><div class="pill" id="me" style="margin-left:0"></div><a id="adm" class="btn" href="/admin" style="display:none">Admin panel</a><button id="out" class="btn" style="background:none;cursor:pointer">Log out</button></header>
+<main><aside>
+<div class="card"><h2>1 · Choose adversary</h2><div id="adv"></div>
+<label class="f" for="t">Lab target</label><select id="t"></select>
+
+<button id="go">▶ Run simulation</button><p class="note">Nothing is executed on the target. Each step emits a synthetic event that your rules are tested against.</p></div>
+<div class="card"><h2>2 · Detection rules</h2><div id="rules"></div><p class="note">Switch rules on, then run again to see your score improve.</p></div>
+<div class="card"><h2>Run history</h2><div id="hist"></div></div></aside>
+<section>
+<div class="card" id="hero"><div class="empty">Choose an adversary and press <b>Run simulation</b> to see how well your defenses hold up.</div></div>
+<div class="card"><h2>ATT&amp;CK coverage</h2><div class="mx" id="mx"></div></div>
+<div class="card"><h2>Attack timeline</h2><div id="tl" class="empty">No run yet.</div></div>
+</section></main>
+<script>
+const $=id=>document.getElementById(id);let cat,me,last={};
+const j=async(u,o={})=>{o.headers={...(o.headers||{}),Authorization:"Bearer "+localStorage.token};const r=await fetch(u,o);if(r.status==401){localStorage.removeItem("token");location="/login";throw new Error("login")}if(!r.ok){let m="Request failed";try{m=(await r.json()).detail||m}catch(e){}alert(m);throw new Error(m)}return r.json()};
+async function init(){if(!localStorage.token){location="/login";return}me=await j("/api/auth/me");$("me").textContent=me.username+" · "+me.role;if(me.role=="admin")$("adm").style.display="inline-block";if(me.role=="viewer"){$("go").disabled=true;$("go").textContent="View only (viewer role)"}cat=await j("/api/catalog");
+$("adv").innerHTML=cat.profiles.map((p,i)=>`<label class="adv"><input type="radio" name="a" value="${p.id}" ${i?"":"checked"}><b>${p.name}</b><span>${p.steps.length} techniques</span></label>`).join("");
+$("t").innerHTML=cat.targets.map(t=>`<option>${t}</option>`).join("");rules(cat.rules);hist();mx(null)}
+function rules(rs){$("rules").innerHTML=rs.map(r=>`<div class="rule"><span>${r.title}<small>${r.covers.join(" ")}</small></span><label class="sw"><input type="checkbox" aria-label="${r.title}" data-id="${r.id}" ${r.enabled?"checked":""} ${me.role=="admin"?"":"disabled"}><i></i></label></div>`).join("");
+document.querySelectorAll("#rules input").forEach(i=>i.onchange=async()=>{try{rules(await j(`/api/rules/${i.dataset.id}?enabled=${i.checked}`,{method:"PATCH"}))}catch(e){i.checked=!i.checked}})}
+function mx(run){const st={};(run?run.steps:[]).forEach(s=>st[s.technique]=s.detected);
+$("mx").innerHTML=cat.tactics.map(t=>`<div class="col"><h3>${t.toUpperCase()}</h3>${cat.techniques.filter(x=>x.tactic==t).map(x=>`<div class="cell ${x.id in st?(st[x.id]?"ok":"bad"):run?"na":""}"><b>${x.id}</b>${x.name}</div>`).join("")}</div>`).join("")}
+function show(r){const C=2*Math.PI*54,col=r.score>=70?"var(--ok)":r.score>=50?"var(--amb)":"var(--bad)";
+const prev=last[r.profile],d=prev==null?"":r.score-prev,miss=r.total-r.detected;
+const off=r.steps.filter(s=>!s.detected&&s.note.includes("disabled")).length,none=miss-off;
+last[r.profile]=r.score;
+$("hero").innerHTML=`<div class="hero"><div class="gauge"><svg width="180" height="180"><circle cx="90" cy="90" r="54" fill="none" stroke="#243558" stroke-width="12"/><circle id="arc" cx="90" cy="90" r="54" fill="none" stroke="${col}" stroke-width="12" stroke-linecap="round" stroke-dasharray="0 ${C}" style="transition:stroke-dasharray 1s ease"/></svg><div class="v"><b style="color:${col}">${r.score}%</b><span>DETECTION</span></div></div>
+<div><h3 class="title">Run #${r.id} · ${r.profile.replace(/-/g," ")} → <span class="mono">${r.target}</span> <span class="sub">by ${r.by||"n/a"}</span>${d!==""&&d!==0?`<span class="delta ${d>0?"up":"dn"}">${d>0?"▲ +":"▼ "}${d} pts vs previous run</span>`:""}</h3>
+<p class="sub">${r.detected} of ${r.total} techniques were caught.${miss?" Fix the gaps below and run again.":" Full coverage for this adversary."}</p>
+<div class="tiles"><div class="tile"><b style="color:var(--ok)">${r.detected}</b><span>Detected</span></div><div class="tile"><b style="color:var(--bad)">${miss}</b><span>Missed</span></div><div class="tile"><b style="color:var(--amb)">${off}</b><span>Rule off</span></div><div class="tile"><b style="color:var(--blu)">${none}</b><span>No rule exists</span></div></div>
+<p style="margin:14px 0 0"><a class="btn" href="#" onclick="rep(${r.id});return false">Open report</a></p></div></div>`;
+requestAnimationFrame(()=>setTimeout(()=>$("arc").setAttribute("stroke-dasharray",`${C*r.score/100} ${C}`),50));
+mx(r);$("tl").className="tl";$("tl").innerHTML=r.steps.map((s,i)=>`<div class="st ${s.detected?"ok":"bad"}" style="animation-delay:${i*110}ms"><span class="tc">STEP ${s.seq} · ${s.tactic.toUpperCase()} · ${s.technique}</span><div><b>${s.name}</b><b class="r">${s.detected?"DETECTED":"MISSED"}</b></div><div class="n">${s.note}</div></div>`).join("")}
+async function hist(){const h=await j("/api/runs");$("hist").innerHTML=h.length?h.map(r=>`<div class="h"><a href="#" data-id="${r.id}">#${r.id} ${r.profile.replace(/-/g," ")}</a><b class="mono">${r.score}%</b></div>`).join(""):'<div class="note">No runs yet.</div>';
+document.querySelectorAll("#hist a").forEach(a=>a.onclick=async e=>{e.preventDefault();show(await j("/api/runs/"+a.dataset.id))})}
+$("go").onclick=async()=>{const b=$("go");b.disabled=true;b.textContent="Simulating…";
+try{const p=document.querySelector("input[name=a]:checked").value;show(await j("/api/runs",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({profile:p,target:$("t").value})}));hist()}catch(e){}
+b.disabled=false;b.textContent="▶ Run simulation"};
+async function rep(id){const t=await fetch("/api/runs/"+id+"/report",{headers:{Authorization:"Bearer "+localStorage.token}}).then(r=>r.text());window.open(URL.createObjectURL(new Blob([t],{type:"text/plain"})))}
+$("out").onclick=()=>{localStorage.removeItem("token");location="/login"};
+init();
+</script></body></html>

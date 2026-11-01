@@ -1,0 +1,40 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin panel · Adversary Emulation Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0f1c;--p:#111a2e;--ln:#243558;--tx:#e8eefc;--mu:#8a9bbd;--ok:#3ee0b0;--bad:#ff5d6c;--amb:#ffb454;--blu:#6aa7ff}
+*{box-sizing:border-box}body{margin:0;color:var(--tx);font:14px/1.5 "IBM Plex Sans",system-ui,sans-serif;min-height:100vh;background:radial-gradient(900px 500px at 85% -10%,#1b2f6b55,transparent),var(--bg)}
+header{display:flex;align-items:center;gap:14px;padding:16px 28px;border-bottom:1px solid var(--ln)}h1{font-size:18px;margin:0}header a{margin-left:auto;color:var(--blu);text-decoration:none;font-weight:600}
+main{max-width:1000px;margin:auto;padding:22px 28px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+.tile{background:var(--p);border:1px solid var(--ln);border-radius:12px;padding:14px}.tile b{font-size:28px;display:block;line-height:1.1}.tile span{color:var(--mu);font-size:12px}
+.card{background:var(--p);border:1px solid var(--ln);border-radius:14px;padding:6px 18px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:640px}th{text-align:left;color:var(--mu);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;padding:12px 8px}
+td{padding:12px 8px;border-top:1px solid var(--ln)}
+.st{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:13px}.st:before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c)}
+.on{--c:var(--ok)}.off{--c:var(--amb)}.no{--c:var(--bad)}
+select,button{font:inherit;background:#0b1326;color:var(--tx);border:1px solid var(--ln);border-radius:8px;padding:6px 8px}
+button.del{color:var(--bad);border-color:#ff5d6c66;cursor:pointer}button:disabled,select:disabled{opacity:.4;cursor:not-allowed}
+select:focus-visible,button:focus-visible{outline:2px solid var(--blu)}.you{color:var(--mu);font-size:12px}
+</style></head><body>
+<header><h1>Admin panel · Users</h1><a href="/">← Back to dashboard</a></header>
+<main><div class="tiles" id="tiles"></div><div class="card"><table><thead><tr><th>User</th><th>Role</th><th>Login status</th><th>Last login</th><th>Created</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></main>
+<script>
+const $=id=>document.getElementById(id),T=localStorage.token;if(!T)location="/login";
+const H={Authorization:"Bearer "+T};
+async function api(u,o={}){const r=await fetch(u,{...o,headers:H});if(r.status==401){localStorage.removeItem("token");location="/login";throw 0}const d=await r.json().catch(()=>({}));if(!r.ok){alert(d.detail||"Request failed");throw 0}return d}
+const fmt=t=>t?new Date(t*1000).toLocaleString():"—";
+const stat=u=>!u.last_login?["Never logged in","no"]:Date.now()/1000-u.last_login<28800?["Active (last 8h)","on"]:["Logged in earlier","off"];
+async function load(){const me=await api("/api/auth/me");
+if(me.role!="admin"){document.body.innerHTML='<p style="padding:40px">Admins only. <a href="/" style="color:#6aa7ff">Back to dashboard</a></p>';return}
+const us=await api("/api/users"),n=f=>us.filter(f).length;
+$("tiles").innerHTML=[["Total users",us.length,"var(--blu)"],["Active now",n(u=>stat(u)[1]=="on"),"var(--ok)"],["Never logged in",n(u=>!u.last_login),"var(--bad)"],["Admins / analysts / viewers",n(u=>u.role=="admin")+" / "+n(u=>u.role=="analyst")+" / "+n(u=>u.role=="viewer"),"var(--amb)"]].map(t=>`<div class="tile"><b style="color:${t[2]}">${t[1]}</b><span>${t[0]}</span></div>`).join("");
+$("rows").innerHTML=us.map(u=>{const s=stat(u),self=u.username==me.username;
+return`<tr><td><b>${u.username}</b> ${self?'<span class="you">(you)</span>':""}</td>
+<td><select data-u="${u.username}" class="role" ${self?"disabled":""} aria-label="Role for ${u.username}">${["admin","analyst","viewer"].map(r=>`<option ${r==u.role?"selected":""}>${r}</option>`).join("")}</select></td>
+<td><span class="st ${s[1]}">${s[0]}</span></td><td>${fmt(u.last_login)}</td><td>${fmt(u.created)}</td>
+<td><button class="del" data-u="${u.username}" ${self?"disabled":""}>Delete</button></td></tr>`}).join("");
+document.querySelectorAll(".role").forEach(s=>s.onchange=async()=>{try{await api(`/api/users/${s.dataset.u}?role=${s.value}`,{method:"PATCH"})}catch(e){}load()});
+document.querySelectorAll(".del").forEach(b=>b.onclick=async()=>{if(confirm("Delete user "+b.dataset.u+"?")){try{await api("/api/users/"+b.dataset.u,{method:"DELETE"})}catch(e){}load()}})}
+load();
+</script></body></html>
